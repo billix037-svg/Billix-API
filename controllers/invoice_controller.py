@@ -105,7 +105,7 @@ async def extract_invoice_image_groq(
         else:
             image_bytes = file_bytes
         invoice_data = invoice_extractor.extract_invoice_json_from_image_groq(image_bytes, doc_type)
-        await api_usage_dal.increment_invoice_usage(user_id, session)
+        await usage_service.increment_invoice_usage(user_id, session)
         return invoice_data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) 
