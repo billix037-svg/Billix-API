@@ -69,7 +69,7 @@ class UsersApiKeyDAL:
             if not key:
                 return None
             
-            current_status = getattr(key, 'is_active', True)
+            current_status = setattr(key, 'is_active', True)
             new_status = not current_status
             
 
