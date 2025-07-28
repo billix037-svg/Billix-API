@@ -61,6 +61,7 @@ class UsersApiKeyDAL:
     async def toggle_api_key_status(self, api_key):
         """
         Toggle the active status of an API key using direct SQL UPDATE.
+        If current status is True, set to False. If False, set to True.
         """
         try:
             # First get the current status
@@ -68,18 +69,20 @@ class UsersApiKeyDAL:
             if not key:
                 return None
             
-            current_status = setattr(key, 'is_active', True)
+            # Get the current status and toggle it
+            current_status = key.is_active
             new_status = not current_status
             
-
+            # Set the new status
+            key.is_active = new_status
+            
             await self.db_session.commit()
             await self.db_session.refresh(key)
             return key
-
+            
         except Exception as e:
-            print(f"Error toggling API key status: {e}")
             await self.db_session.rollback()
-            return None
+            raise e
 
     async def revoke_api_key(self, api_key):
         """
