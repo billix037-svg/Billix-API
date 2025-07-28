@@ -72,15 +72,11 @@ class UsersApiKeyDAL:
             current_status = getattr(key, 'is_active', True)
             new_status = not current_status
             
-            # Use direct SQL UPDATE
-            result = await self.db_session.execute(
-                text("UPDATE users_api_key SET is_active = :is_active WHERE api_key = :api_key"),
-                {"is_active": new_status, "api_key": api_key}
-            )
+
             await self.db_session.commit()
-            
-            # Return the updated key
-            return await self.get_api_key(api_key)
+            await self.db_session.refresh(key)
+            return key
+
         except Exception as e:
             print(f"Error toggling API key status: {e}")
             await self.db_session.rollback()
