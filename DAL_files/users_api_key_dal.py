@@ -34,8 +34,7 @@ class UsersApiKeyDAL:
         result = await self.db_session.execute(
             select(UsersApiKey).where(UsersApiKey.api_key == api_key)
         )
-        # return result.scalar_one_or_none()
-        return result.scalars().all()
+        return result.scalar_one_or_none()
 
     async def get_user_api_keys(self, user_id):
         """
