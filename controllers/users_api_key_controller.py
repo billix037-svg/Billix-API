@@ -159,7 +159,7 @@ async def update_api_key_name(api_key: str, name_data: UsersApiKeyNameUpdate, db
             detail="An unexpected error occurred while updating the API key name"
         )
 
-@users_api_key_router.patch("/{api_key}/toggle", response_model=UsersApiKeyOut)
+@users_api_key_router.patch("/{api_key}/toggle")
 async def toggle_api_key_status(api_key: str, db: AsyncSession = Depends(get_session)):
     """
     Toggle the active status of an API key (enable if disabled, disable if enabled).
