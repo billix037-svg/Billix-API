@@ -15,11 +15,10 @@ from models.user_subscription import UserSubscription
 from models.user_usage import UserUsage
 from models.users_api_key import UsersApiKey
 
-
 from sqlalchemy.future import select
-from models.users_api_key import UsersApiKey
 from models.api_usage import ApiUsage
 from models.plan import Plan
+
 
 async def chat_usage_checker(
     x_api_key: str = Header(..., alias="X-API-Key"),
@@ -37,25 +36,24 @@ async def chat_usage_checker(
             UsersApiKey.is_active == True
         )
     )
-
     api_key_obj = result.scalar_one_or_none()
     if not api_key_obj:
         raise HTTPException(status_code=401, detail="Invalid API key")
     api_key_id = api_key_obj.users_api_key_id
-    user_id=api_key_obj.user_id
+    user_id = api_key_obj.user_id
 
     # 2. Get API usage for user
     result = await session.execute(
         select(ApiUsage).where(ApiUsage.users_api_key_id == api_key_id)
     )
     usage_obj = result.scalar_one_or_none()
-    
     if not usage_obj:
         raise HTTPException(status_code=404, detail="API usage not found for user")
     chat_usage = usage_obj.chatUsage
 
     # 3. Get subscription for user
-    result = await session.execute(select(UserSubscription).where(
+    result = await session.execute(
+        select(UserSubscription).where(
             UserSubscription.userId == user_id,
             UserSubscription.is_active.in_(["active", "Active"])
         )
@@ -80,6 +78,7 @@ async def chat_usage_checker(
 
     return user_id
 
+
 async def invoice_usage_checker(
     x_api_key: str = Header(..., alias="X-API-Key"),
     session: AsyncSession = Depends(get_session)
@@ -100,7 +99,7 @@ async def invoice_usage_checker(
     if not api_key_obj:
         raise HTTPException(status_code=401, detail="Invalid API key")
     api_key_id = api_key_obj.users_api_key_id
-    user_id=api_key_obj.user_id
+    user_id = api_key_obj.user_id
 
     # 2. Get API usage for user
     result = await session.execute(
@@ -112,7 +111,8 @@ async def invoice_usage_checker(
     invoice_usage = usage_obj.invoiceUsage
 
     # 3. Get subscription for user
-     result = await session.execute(select(UserSubscription).where(
+    result = await session.execute(
+        select(UserSubscription).where(
             UserSubscription.userId == user_id,
             UserSubscription.is_active.in_(["active", "Active"])
         )
