@@ -27,7 +27,6 @@ Invoice extraction endpoints for classifying documents and extracting invoice da
 @invoice_router.post("/extract/invoice")
 async def extract_invoice(
     request: InvoiceTextRequest,
-    user_id: str = Depends(invoice_usage_checker),
     session: AsyncSession = Depends(get_session)
 ):
     """
@@ -39,7 +38,6 @@ async def extract_invoice(
         invoice_data = invoice_extractor.extract_invoice_fromate_from_text(request.text, doc_type)
         
         # Increment invoice usage counter after successful extraction
-        await usage_service.increment_invoice_usage(user_id, session)
         
         return invoice_data
     except Exception as e:
@@ -50,7 +48,6 @@ async def extract_invoice(
 @invoice_router.post("/extract/pdf-image-text")
 async def extract_pdf_image_text(
     file: UploadFile = File(...),
-    user_id: str = Depends(invoice_usage_checker),
     session: AsyncSession = Depends(get_session)
 ):
     """
@@ -70,7 +67,6 @@ async def extract_pdf_image_text(
             raise HTTPException(status_code=400, detail=f"Unsupported file type: {suffix}")
         
         # Increment invoice usage counter after successful extraction
-        await usage_service.increment_invoice_usage(user_id, session)
         
         return invoice_data
     except Exception as e:
@@ -80,7 +76,6 @@ async def extract_pdf_image_text(
 async def extract_invoice_image_groq(
     file: UploadFile = File(...),
     doc_type: str = Form(...),
-    user_id: str = Depends(invoice_usage_checker),
     session: AsyncSession = Depends(get_session)
 ):
     """
@@ -105,7 +100,6 @@ async def extract_invoice_image_groq(
         else:
             image_bytes = file_bytes
         invoice_data = invoice_extractor.extract_invoice_json_from_image_groq(image_bytes, doc_type)
-        await usage_service.increment_invoice_usage(user_id, session)
         return invoice_data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) 
