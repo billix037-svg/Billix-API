@@ -55,8 +55,10 @@ async def chat_usage_checker(
     chat_usage = usage_obj.chatUsage
 
     # 3. Get subscription for user
-    result = await session.execute(
-        select(UserSubscription).where(UserSubscription.userId == user_id)
+    result = await session.execute(select(UserSubscription).where(
+            UserSubscription.userId == user_id,
+            UserSubscription.is_active.in_(["active", "Active"])
+        )
     )
     subscription_obj = result.scalar_one_or_none()
     if not subscription_obj:
@@ -110,8 +112,10 @@ async def invoice_usage_checker(
     invoice_usage = usage_obj.invoiceUsage
 
     # 3. Get subscription for user
-    result = await session.execute(
-        select(UserSubscription).where(UserSubscription.userId == user_id)
+     result = await session.execute(select(UserSubscription).where(
+            UserSubscription.userId == user_id,
+            UserSubscription.is_active.in_(["active", "Active"])
+        )
     )
     subscription_obj = result.scalar_one_or_none()
     if not subscription_obj:
